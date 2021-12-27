@@ -35,7 +35,7 @@ def measure_power(scope, ureg, volt_chan=Channel.CH1, amp_chan=Channel.CH2):
     x_vals = last_x_values(scope)
     return (volts * amps, x_vals)
 
-def draw_figure(scope, volt_chan=Channel.CH1, amp_chan=Channel.CH2, filename="figure.svg"):
+def draw_figure(scope, volt_chan=Channel.CH1, amp_chan=Channel.CH2, filename="figure.svg", csv_filename="data.csv.gz"):
     ureg = pint.UnitRegistry()
     ureg.setup_matplotlib()
 
@@ -66,6 +66,9 @@ def draw_figure(scope, volt_chan=Channel.CH1, amp_chan=Channel.CH2, filename="fi
         a.grid(axis='y')
 
     fig.savefig(filename, format='svg')
+
+    rows = np.vstack((x_vals.magnitude, volts.magnitude, amps.magnitude)).transpose()
+    np.savetxt(csv_filename, rows, fmt=['%d','%e','%e'], delimiter=',', header='usec,volts,amps')
 
 if __name__ == "__main__":
     rig = quick_connect()
