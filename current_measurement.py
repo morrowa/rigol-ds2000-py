@@ -21,6 +21,9 @@ import matplotlib.pyplot as plt
 
 from ds2102a import read_normal, last_x_values, Channel
 
+def _rms(x):
+    return np.sqrt(x.dot(x)/x.size)
+
 def quick_connect():
     rm = pyvisa.ResourceManager()
     return rm.open_resource(rm.list_resources()[0])
@@ -69,6 +72,17 @@ def draw_figure(scope, volt_chan=Channel.CH1, amp_chan=Channel.CH2, filename="fi
 
     rows = np.vstack((x_vals.magnitude, volts.magnitude, amps.magnitude)).transpose()
     np.savetxt(csv_filename, rows, fmt=['%d','%e','%e'], delimiter=',', header='usec,volts,amps')
+
+    irms = _rms(amps)
+    vrms = _rms(volts)
+    apparent_power = irms * vrms
+    avg_real_power = (volts * amps).mean()
+    pf = avg_real_power / apparent_power
+    print("Irms: {:.4f}".format(irms))
+    print("Vrms: {:.2f}".format(vrms))
+    print("Apparent power: {:.4f}".format(apparent_power))
+    print("Avg real power: {:.4f}".format(avg_real_power))
+    print("Power factor: {:.4f}".format(pf.magnitude))
 
 if __name__ == "__main__":
     rig = quick_connect()
